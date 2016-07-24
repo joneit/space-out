@@ -1,5 +1,6 @@
 window.onload = function() {
     var BLACK = 0, WHITE = 0xffffff, GOLD = 0xc8c876, BLUE = 0x761ec8;
+    var PI_OVER_2 = Math.PI / 2, PI_OVER_4 = Math.PI / 4, PI_OVER_8 = Math.PI / 8;
 
     var width = window.innerWidth;
     var height = window.innerHeight;
@@ -25,11 +26,8 @@ window.onload = function() {
         renderer.render(scene, camera);
         group.rotation.y -= clock.getDelta() / 20;
 
-        floppers.forEach(function(f) {
-            f.mesh.rotation.z = Math.PI * f.t / 180;
-            if (f.t <= 0) f.dt = f.v;
-            else if (f.t >= f.t0) f.dt = -f.v;
-            f.t += f.dt;
+        floppers.forEach(function(f, i) {
+            f.mesh.rotation.z = PI_OVER_8 + PI_OVER_8 * Math.sin(i * PI_OVER_4 + 2.5 * clock.getElapsedTime());
         });
 
         if (running) requestAnimationFrame(render);
@@ -60,14 +58,14 @@ window.onload = function() {
 
     function getCamera() {
         var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
-        camera.position.y = 40;
-        camera.position.z = 80;
+        camera.position.y = 45;
+        camera.position.z = 220;
         camera.lookAt(group.position);
         return camera;
     }
 
     function getGround() {
-        var geometry = new THREE.CircleGeometry(60, 30);
+        var geometry = new THREE.CircleGeometry(200, 30);
         var ground = new THREE.Object3D();
 
         ground.add(new THREE.LineSegments(
@@ -94,8 +92,9 @@ window.onload = function() {
 
         material = new THREE.MeshLambertMaterial({ color: BLUE });
 
-        for (x = -2; x <= 2; ++x)
-            group.add(getFlopper(15 * x, 0, 0));
+        for (var x = -9; x <= 9; ++x)
+            for (var z = -19; z <= 19; ++z)
+                group.add(getFlopper(15 * x, 0, 10 * z));
 
         return group;
 
