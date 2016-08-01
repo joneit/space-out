@@ -125,20 +125,24 @@ window.onload = function() {
         }
 
         function getFlutedTube(radius, height, flutes, dx, dy, dz) {
-            var group = new THREE.Group();
-            var geometry = new THREE.CylinderGeometry(radius, radius, height, 48);
-            group.add(new THREE.Mesh(geometry, material));
+            var geometry = new THREE.CylinderGeometry(radius, radius, height, 15);
+            var mesh = new THREE.Mesh(geometry);
+            var BSP = new ThreeBSP(mesh);
 
-            var fluteGroup = new THREE.Group();
-            for(var th = 0; th < 2 * Math.PI; th += Math.PI / 7.5) {
-                var flute = new THREE.CylinderGeometry(.175 * radius, .175 * radius, height, 12);
-                flute.applyMatrix(new THREE.Matrix4().makeTranslation(1.07 * radius * Math.cos(th), 0, 1.07 * radius * Math.sin(th)));
-                fluteGroup.add(new THREE.Mesh(flute, new THREE.MeshLambertMaterial({ color: GOLD })));
+            var flute = new THREE.CylinderGeometry(.15 * radius, .15 * radius, height, 25);
+            var r = 1.03 * radius;
+            for (var th = 0; th < 2 * Math.PI; th += Math.PI / 7.5) {
+                var x = r * Math.cos(th), z = r * Math.sin(th);
+                flute.applyMatrix(new THREE.Matrix4().makeTranslation(x, 0, z));
+                BSP = BSP.subtract(new ThreeBSP(new THREE.Mesh(flute)));
+                flute.applyMatrix(new THREE.Matrix4().makeTranslation(-x, 0, -z));
             }
 
-            group.add(fluteGroup);
-            group.applyMatrix(new THREE.Matrix4().makeTranslation(dx, dy, dz));
-            return group;
+            mesh = BSP.toMesh(material);
+
+            mesh.applyMatrix(new THREE.Matrix4().makeTranslation(dx, dy, dz));
+            
+            return mesh;
         }
     }
 };
